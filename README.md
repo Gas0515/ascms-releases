@@ -19,7 +19,7 @@ ASCMS 是一套可自托管的建站系统（CMS）：NestJS 11 后端 + Vue 3 �
 | `program-<version>.zip` | 旧版在线升级包。1.0.0–1.0.2 的升级器只识别该前缀；1.0.3 额外提供兼容包，1.0.4 起不再发布 |
 | `upgrade-<version>.sql` | 增量数据库脚本。仅在该版本有表结构变更时提供，在线升级会自动执行 |
 
-> ⚠️ Release 页面中平台自动生成的 `v<version>.zip` / `v<version>.tar.gz` 是源码快照（本仓库只包含本 README），**不能部署，也不能用于升级**。请只下载上表中的附件。
+> ⚠️ Release 页面中平台自动生成的 `v<version>.zip` / `v<version>.tar.gz` 是源码快照（本仓库只包含说明文档），**不能部署，也不能用于升级**。请只下载上表中的附件。
 
 ## 在线升级（推荐）
 
@@ -31,7 +31,7 @@ ASCMS 是一套可自托管的建站系统（CMS）：NestJS 11 后端 + Vue 3 �
 
 注意事项：
 
-- 当前版本以数据库 `as_system.version` 为准，其次才是 `data/version` 与包内 `package.json`
+- 当前版本以数据库 `as_system.version` 为准（1.0.2 起），其次才是 `data/version` 与包内 `package.json`
 - 升级前会自动整库备份；数据库结构变更失败时依赖备份回滚
 - 按版本号顺序升级，不要跳过中间版本，升级器会收集区间内所有 SQL
 - **容器部署**：容器内升级写入可写层，`docker compose up -d` 重建容器会回退。升级成功后必须固化镜像（`docker commit`，或按部署脚本执行 `promote.sh`）再重建
