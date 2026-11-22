@@ -72,6 +72,7 @@ NODE_ENV=production node dist/main.js
 
 | 版本 | 日期 | 主要变更 |
 | --- | --- | --- |
+| [1.0.4](https://gitee.com/gas0324/ascms-releases/releases/tag/v1.0.4) | 2026-11-22 | 修复自定义模板静态资源（如 `/yujiekt`）被前台 404 兜底误伤；优化系统升级进度弹窗；1.0.4 起在线升级只发 `ascms-` 包 |
 | [1.0.3](https://gitee.com/gas0324/ascms-releases/releases/tag/v1.0.3) | 2026-11-21 | 产品功能站并入内置默认模板（浅色主题）；新增 Gzip 压缩开关与静态资源长缓存；修复搜索 XSS、前台 404、安装向导；在线升级包改用 `ascms-` 前缀（保留 `program-` 兼容包） |
 | [1.0.2](https://gitee.com/gas0324/ascms-releases/releases/tag/v1.0.2) | 2026-11-18 | 修复在线升级（卷挂载 EBUSY、进度订阅、版本记录）、登录保存密码、访问统计与后台顶栏 |
 | [1.0.1](https://gitee.com/gas0324/ascms-releases/releases/tag/v1.0.1) | 2026-11-18 | 修复在线升级依赖、标签重名、登录自动填充与工作台卡片 |
