@@ -72,6 +72,7 @@ NODE_ENV=production node dist/main.js
 
 | 版本 | 日期 | 主要变更 |
 | --- | --- | --- |
+| [1.0.6](https://gitee.com/gas0324/ascms-releases/releases/tag/v1.0.6) | 2026-11-23 | 静态生成跳过未配置模板的栏目；静态/远程模式首页 302 到 `index.html`、缺失静态页直接 404；升级弹窗重做并显示下载速度与剩余时间 |
 | [1.0.5](https://gitee.com/gas0324/ascms-releases/releases/tag/v1.0.5) | 2026-11-22 | 修复静态生成不可用（栏目链接规则缺省兜底、空栏目出页、链接栏目内容页）；网站运行模式真正生效（动态/静态/远程切换链接方案，静态文件缺失时按规则兜底渲染） |
 | [1.0.4](https://gitee.com/gas0324/ascms-releases/releases/tag/v1.0.4) | 2026-11-22 | 修复自定义模板静态资源（如 `/yujiekt`）被前台 404 兜底误伤；优化系统升级进度弹窗；1.0.4 起在线升级只发 `ascms-` 包 |
 | [1.0.3](https://gitee.com/gas0324/ascms-releases/releases/tag/v1.0.3) | 2026-11-21 | 产品功能站并入内置默认模板（浅色主题）；新增 Gzip 压缩开关与静态资源长缓存；修复搜索 XSS、前台 404、安装向导；在线升级包改用 `ascms-` 前缀（保留 `program-` 兼容包） |
