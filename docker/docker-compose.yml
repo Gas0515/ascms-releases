@@ -1,0 +1,40 @@
+# ASCMS 官方 Docker 部署配置
+#
+# 用法：
+#   1. 提前准备好 MySQL（推荐独立实例，不要和 WEB 容器混部）
+#   2. docker compose up -d
+#   3. 浏览器打开 http://<host>:9000 ，按向导完成安装
+#
+# 升级：在后台「系统 → 系统升级」操作，不要替换镜像。
+#       /app/backend、/app/frontend 是命名卷，卷里有代码时镜像里的代码不生效。
+
+services:
+  ascms:
+    image: gas0324/ascms:${ASCMS_VERSION:-latest}
+    container_name: ascms
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 9000
+      TZ: Asia/Shanghai
+      # 不要在这里写 DB_* / JWT_* / FRONTEND_ROUTE：
+      # 环境变量优先级高于安装向导写入的 .env，写了会让向导里填的值失效，
+      # 而且报错信息完全看不出原因。
+    ports:
+      - "${ASCMS_PORT:-9000}:9000"
+    volumes:
+      # 代码 + .env + .installed + node_modules + data/version 都在卷里，重建容器不丢
+      - ascms_backend:/app/backend
+      # 在线升级会整目录替换 frontend，单独一个卷
+      - ascms_frontend:/app/frontend
+    # MySQL 在本机（Linux 宿主机）时解开。容器里的 127.0.0.1 指容器自己，
+    # 向导里数据库主机填 host.docker.internal 才能连到宿主机。
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
+
+volumes:
+  # 卷名带项目名：在 /opt/ascms 下启动得到 ascms_ascms_backend。
+  # 换目录或加 -p 会得到新的空卷，等于重新安装。
+  # docker compose down -v 会连代码和配置一起删除。
+  ascms_backend:
+  ascms_frontend:

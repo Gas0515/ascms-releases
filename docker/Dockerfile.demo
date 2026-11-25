@@ -1,0 +1,43 @@
+# ASCMS 演示站镜像
+#
+# 与标准镜像的唯一差别：构建时写入 .installed，跳过安装向导。
+# 演示站的只读保护由 compose 的 DEMO_MODE=true 注入，不在镜像里。
+#
+# 构建上下文必须是 demo 分支的发布包目录：
+#
+#   unzip demo-ascms-1.0.8.zip -d pkg-1.0.8
+#   cp docker/Dockerfile.demo pkg-1.0.8/Dockerfile
+#   docker build -t ascms-demo:1.0.8 pkg-1.0.8
+#
+# 本文件不参与 CI，只用于在服务器上重建演示站镜像。
+
+FROM node:20-slim
+
+ENV NODE_ENV=production \
+    PORT=9000
+
+WORKDIR /app/backend
+
+# 依赖层（利用镜像缓存）
+COPY backend/package.json ./package.json
+RUN npm config set registry https://registry.npmmirror.com \
+    && npm install --omit=dev --no-audit --no-fund \
+    && npm cache clean --force
+
+# 应用文件（来自 build-release.js 产出的升级包）
+COPY backend/dist ./dist
+COPY backend/public ./public
+COPY backend/sql ./sql
+COPY frontend /app/frontend
+
+# 日志/上传目录 + 标记已安装（跳过安装向导）+ 版本号取自 package.json
+RUN mkdir -p logs/mysql public/upload data \
+    && touch .installed \
+    && node -p "require('./package.json').version" > data/version
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:9000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+
+EXPOSE 9000
+
+CMD ["node", "dist/main.js"]
