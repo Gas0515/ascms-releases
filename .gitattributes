@@ -1,0 +1,2 @@
+# Dockerfile 里的续行符对 CRLF 敏感，统一用 LF
+* text=auto eol=lf
