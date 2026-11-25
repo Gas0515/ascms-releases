@@ -1,0 +1,122 @@
+name: docker-image
+
+# 从已发布的 Release 附件构建标准镜像并推送到 Docker Hub。
+# 镜像内容 = 发布包内容 + docker/Dockerfile，不在 CI 里编译源码。
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号（如 1.0.8）；Release 里需已有 ascms-<版本>.zip'
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docker-${{ github.event.release.tag_name || inputs.version }}
+  cancel-in-progress: false
+
+env:
+  IMAGE: gas0324/ascms
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: 解析版本
+        id: v
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            RAW="${{ github.event.release.tag_name }}"
+          else
+            RAW="${{ inputs.version }}"
+          fi
+          V="${RAW#v}"
+          echo "$V" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || { echo "版本号不合法: $RAW"; exit 1; }
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+
+      - name: 下载发布包
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh release download "v${{ steps.v.outputs.version }}" \
+            --repo "${{ github.repository }}" \
+            --pattern "ascms-${{ steps.v.outputs.version }}.zip" \
+            --dir .
+          unzip -q "ascms-${{ steps.v.outputs.version }}.zip" -d pkg
+
+      - name: 准备构建上下文
+        run: |
+          set -euo pipefail
+          cp docker/Dockerfile pkg/
+          got=$(node -p "require('./pkg/backend/package.json').version")
+          echo "包内版本: $got"
+          [ "$got" = "${{ steps.v.outputs.version }}" ] || { echo "包内版本与目标版本不一致"; exit 1; }
+
+      - name: 构建镜像
+        run: |
+          set -euo pipefail
+          docker build \
+            --label "org.opencontainers.image.title=ASCMS" \
+            --label "org.opencontainers.image.version=${{ steps.v.outputs.version }}" \
+            --label "org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}" \
+            -t "$IMAGE:${{ steps.v.outputs.version }}" \
+            pkg
+
+      - name: 镜像自检
+        run: |
+          set -euo pipefail
+          IMG="$IMAGE:${{ steps.v.outputs.version }}"
+
+          # 发布包里带一份 .env 模板，Dockerfile 若改成整目录 COPY 就会漏进镜像
+          if docker run --rm --entrypoint sh "$IMG" -c 'test -f /app/backend/.env'; then
+            echo "镜像内存在 .env，已中止"; exit 1
+          fi
+
+          got=$(docker run --rm --entrypoint node "$IMG" -p "require('/app/backend/package.json').version")
+          echo "镜像版本: $got"
+          [ "$got" = "${{ steps.v.outputs.version }}" ] || { echo "镜像版本不一致"; exit 1; }
+
+          cnt=$(docker run --rm --entrypoint sh "$IMG" -c 'find /app/backend/public/upload -type f 2>/dev/null | wc -l')
+          echo "upload 文件数: $cnt"
+          [ "$cnt" = "0" ] || { echo "镜像内 upload 不为空"; exit 1; }
+
+          echo -n "data/version: "
+          docker run --rm --entrypoint cat "$IMG" /app/backend/data/version
+
+      - name: 登录 Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: 推送版本标签
+        run: |
+          set -euo pipefail
+          docker push "$IMAGE:${{ steps.v.outputs.version }}"
+
+      - name: 更新 latest
+        run: |
+          set -euo pipefail
+          V="${{ steps.v.outputs.version }}"
+          MAX=$(curl -fsSL "https://hub.docker.com/v2/repositories/${IMAGE}/tags?page_size=100" 2>/dev/null \
+            | grep -o '"name":"[0-9]*\.[0-9]*\.[0-9]*"' \
+            | sed 's/"name":"//;s/"//' | sort -V | tail -1 || true)
+          echo "仓库最大版本: ${MAX:-（无）}"
+          # 补丁版晚于高版本发布时，不要把 latest 指回旧版本
+          if [ -n "$MAX" ] && [ "$MAX" != "$V" ]; then
+            echo "本次 $V 不是仓库最新版本，跳过 latest"
+            exit 0
+          fi
+          docker tag "$IMAGE:$V" "$IMAGE:latest"
+          docker push "$IMAGE:latest"
+
+      - name: 输出结果
+        run: |
+          echo "已推送: $IMAGE:${{ steps.v.outputs.version }}"
+          echo "https://hub.docker.com/r/gas0324/ascms/tags"
