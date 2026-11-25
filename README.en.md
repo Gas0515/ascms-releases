@@ -34,7 +34,7 @@ Notes:
 - The current version is read from `as_system.version` (since 1.0.2), then `data/version`, then the packaged `package.json`
 - A full database backup is taken before every upgrade; rollback of schema changes relies on that backup
 - Upgrade versions in order. The upgrader collects every SQL attachment in the version range
-- **Docker deployments**: in-container upgrades are written to the writable layer and are lost when the container is recreated with `docker compose up -d`. Commit the image after a successful upgrade (`docker commit`, or `promote.sh` for the demo), then recreate the container
+- **Docker deployments**: official image `gas0324/ascms` ([Docker Hub](https://hub.docker.com/r/gas0324/ascms)). `/app/backend` and `/app/frontend` are persisted as named volumes, so recreating the container keeps both code and configuration. Upgrade from **System → System Upgrade**; do not replace the image to upgrade
 
 ## Manual installation
 
@@ -64,7 +64,7 @@ The app listens on port `9000` by default (`PORT` overrides it). On first start,
 
 For production, run the process under PM2 or systemd and put Nginx/OpenResty in front of it (`client_max_body_size 50m`; WebSocket `/socket.io/` is required for upgrade progress).
 
-> Full Docker, reverse proxy, HTTPS, and upgrade-promotion instructions: <https://ascms.cmsuse.com/deploy>
+> Full Docker, reverse proxy, and HTTPS instructions: <https://ascms.cmsuse.com/deploy>
 
 ## Version history
 

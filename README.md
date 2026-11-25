@@ -34,7 +34,7 @@ ASCMS 是一套可自托管的建站系统（CMS）：NestJS 11 后端 + Vue 3 �
 - 当前版本以数据库 `as_system.version` 为准（1.0.2 起），其次才是 `data/version` 与包内 `package.json`
 - 升级前会自动整库备份；数据库结构变更失败时依赖备份回滚
 - 按版本号顺序升级，不要跳过中间版本，升级器会收集区间内所有 SQL
-- **容器部署**：容器内升级写入可写层，`docker compose up -d` 重建容器会回退。升级成功后必须固化镜像（`docker commit`，或按部署脚本执行 `promote.sh`）再重建
+- **Docker 部署**：官方镜像 `gas0324/ascms`（[Docker Hub](https://hub.docker.com/r/gas0324/ascms)）。`/app/backend`、`/app/frontend` 用命名卷持久化，代码与配置都在卷里，重建容器不丢；升级请在后台「系统 → 系统升级」完成，**不要替换镜像**
 
 ## 手动部署
 
@@ -66,7 +66,7 @@ NODE_ENV=production node dist/main.js
 
 生产环境建议用 PM2 或 systemd 托管进程，并在前面加 Nginx/OpenResty 反向代理（上传大小 `client_max_body_size 50m`，升级进度需要 WebSocket `/socket.io/`）。
 
-> Docker 部署、反向代理、HTTPS 与升级固化的完整说明见官网「部署与运维」：<https://ascms.cmsuse.com/deploy>
+> Docker 部署、反向代理与 HTTPS 的完整说明见官网「部署与运维」：<https://ascms.cmsuse.com/deploy>
 
 ## 版本历史
 
