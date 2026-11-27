@@ -72,6 +72,7 @@ NODE_ENV=production node dist/main.js
 
 | 版本 | 日期 | 主要变更 |
 | --- | --- | --- |
+| [1.0.9](https://gitee.com/gas0324/ascms-releases/releases/tag/v1.0.9) | 2026-11-27 | 静态站点访问统计（访问明细、内容表现、搜索词）；栏目地址规则与 class_dir 兜底；栏目目录拼音与分页规则；升级保留站点模板目录；部署页改为官方镜像流程 |
 | [1.0.8](https://gitee.com/gas0324/ascms-releases/releases/tag/v1.0.8) | 2026-11-24 | 修复静态模式文章页 404；访问统计记录真实 IP，来源判断按请求域名 |
 | [1.0.7](https://gitee.com/gas0324/ascms-releases/releases/tag/v1.0.7) | 2026-11-24 | 新增邮件设置：SMTP 主机/端口/加密方式/账号/授权码、测试连接与测试发信；发件地址固定使用登录账号；密码不回显、留空保存不覆盖；`as_system` 增加 9 个邮件字段（需增量 SQL） |
 | [1.0.6](https://gitee.com/gas0324/ascms-releases/releases/tag/v1.0.6) | 2026-11-23 | 静态生成跳过未配置模板的栏目；静态/远程模式首页 302 到 `index.html`、缺失静态页直接 404；升级弹窗重做并显示下载速度与剩余时间 |
