@@ -72,6 +72,7 @@ NODE_ENV=production node dist/main.js
 
 | 版本 | 日期 | 主要变更 |
 | --- | --- | --- |
+| [1.1.0](https://gitee.com/gas0324/ascms-releases/releases/tag/v1.1.0) | 2026-11-28 | 对外程序改为演示站同款：默认主题换成演示站模板；新装自带演示栏目与示例内容；演示站只读守卫并入标准包，默认关闭；发布流程拆成灰度与正式两步 |
 | [1.0.10](https://gitee.com/gas0324/ascms-releases/releases/tag/v1.0.10) | 2026-11-27 | 修复父栏目下内容链接指错目录导致的 404；升级前数据库备份目录名带版本标识；升级失败时程序文件与数据库回滚互不阻塞；备份还原列表标识升级自动备份 |
 | [1.0.9](https://gitee.com/gas0324/ascms-releases/releases/tag/v1.0.9) | 2026-11-27 | 静态站点访问统计（访问明细、内容表现、搜索词）；栏目地址规则与 class_dir 兜底；栏目目录拼音与分页规则；升级保留站点模板目录；部署页改为官方镜像流程 |
 | [1.0.8](https://gitee.com/gas0324/ascms-releases/releases/tag/v1.0.8) | 2026-11-24 | 修复静态模式文章页 404；访问统计记录真实 IP，来源判断按请求域名 |
